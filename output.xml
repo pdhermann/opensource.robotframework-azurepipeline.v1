@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 5.0.1 (Python 3.7.5 on win32)" generated="20220520 15:27:07.637" rpa="true" schemaversion="3">
+<suite id="s1" name="Tasks" source="d:\Projekte\Repositories\opensource.robotframework-azurepipeline.v1\Example\tasks.robot">
+<test id="s1-t1" name="Example task" line="11">
+<kw name="Example keyword" library="keywords">
+<kw name="Log" library="BuiltIn">
+<arg>Today is ${TODAY}</arg>
+<doc>Logs the given message with the given level.</doc>
+<msg timestamp="20220520 15:27:07.759" level="INFO">Today is 2022-05-20 15:27:07.752465</msg>
+<status status="PASS" starttime="20220520 15:27:07.758" endtime="20220520 15:27:07.759"/>
+</kw>
+<status status="PASS" starttime="20220520 15:27:07.757" endtime="20220520 15:27:07.759"/>
+</kw>
+<kw name="Example Python Keyword" library="MyLibrary">
+<msg timestamp="20220520 15:27:07.760" level="INFO">This is Python!</msg>
+<status status="PASS" starttime="20220520 15:27:07.760" endtime="20220520 15:27:07.760"/>
+</kw>
+<kw name="Log" library="BuiltIn">
+<arg>${TODAY}</arg>
+<doc>Logs the given message with the given level.</doc>
+<msg timestamp="20220520 15:27:07.761" level="INFO">2022-05-20 15:27:07.752465</msg>
+<status status="PASS" starttime="20220520 15:27:07.761" endtime="20220520 15:27:07.761"/>
+</kw>
+<status status="PASS" starttime="20220520 15:27:07.756" endtime="20220520 15:27:07.762"/>
+</test>
+<doc>Template robot main suite.</doc>
+<status status="PASS" starttime="20220520 15:27:07.642" endtime="20220520 15:27:07.764"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tasks</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Tasks">Tasks</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

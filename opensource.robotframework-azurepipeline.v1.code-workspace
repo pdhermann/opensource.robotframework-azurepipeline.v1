@@ -1,0 +1,81 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "./src"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "python.terminal.activateEnvironment": false,
+    "python.defaultInterpreterPath": "C:\\Python38\\python.exe",
+    "robot.completions.keywords.format": "Title Case",
+    "robot.loadVariablesFromArgumentsFile": "*.txt",
+    "robot.codeFormatter": "builtinTidy",
+    "robot.codeLens.enable": true,
+    "robot.completions.section_headers.form": "plural",
+    "robot.editor.4spacesTab": true,
+    "robot.lint.enabled": true,
+    "robot.lint.keywordCallArguments": true,
+    "robot.lint.robocop.enabled": true,
+    "robot.lint.undefinedKeywords": true,
+    "robot.lint.undefinedLibraries": true,
+    "robot.lint.undefinedResources": true,
+    "robot.lint.undefinedVariableImports": true,
+    "robot.lint.variables": true,
+    "robot.workspaceSymbolsOnlyForOpenDocs": true,
+    "files.associations": {
+      "*.ps": "powershell",
+      "**/azure-pipeline/*.yml": "azure-pipelines"
+    },
+    "todohighlight.include": [
+      "**/*.robot",
+      "**/*.resource",
+      "**/*.txt",
+      "**/*.py",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.html",
+      "**/*.php",
+      "**/*.css",
+      "**/*.scss"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "wayou.vscode-todo-highlight",
+      "fabiospampinato.vscode-todo-plus",
+      "robocorp.robotframework-lsp",
+      "robocorp.robocorp-code",
+      "Tyriar.sort-lines",
+      "ms-azure-devops.azure-pipelines",
+      "ms-vscode.powershell",
+      "yzhang.markdown-all-in-one",
+      "PKief.material-icon-theme",
+      "ms-python.vscode-pylance",
+      "ms-python.python",
+      "redhat.vscode-yaml"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "robotframework-lsp",
+        "name": "Robot Framework: Launch template",
+        "request": "launch",
+        "cwd": "^\"\\${workspaceFolder}\"",
+        "target": "^\"\\${file}\"",
+        "terminal": "integrated",
+        "env": {},
+        "args": ["--outputdir", "../output/"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+tasks:
+  Run all tasks:
+    shell: python -m robot --argumentfile configs/chromium_full_hd_de.txt --report NONE  --outputdir output --logtitle "Exmaple log" -x xunitreport.xml --exclude not-ready tests
+
+  Pabot Example:
+    shell: pabot --pabotlib --processes 2 --argumentfile1 configs/chromium_full_hd_de.txt --argumentfile2 configs/chromium_full_hd_it.txt --report NONE --outputdir output --logtitle "Exmaple Pabot log" -x xunitreport.xml --exclude not-ready tests
+
+condaConfigFile: conda.yaml
+artifactsDir: output
+PATH:
+  - .
+PYTHONPATH:
+  - resources
+  - libraries
+  - variables
+  - tests
+  - configs
+
+ignoreFiles:
+  - .gitignore

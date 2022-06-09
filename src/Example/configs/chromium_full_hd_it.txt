@@ -1,0 +1,17 @@
+--name Chromium Browser FULLHD Suites (IT)
+# Browser
+--variable BROWSER:ChromiumDesktop
+--variable BROWSER_HEIGHT:1080
+--variable BROWSER_LIB:chromium
+--variable BROWSER_LIB_HEADLESS:true
+--variable BROWSER_LIB_IS_MOBILE:false
+--variable BROWSER_LIB_LOCALE:it-IT
+--variable BROWSER_OPTIONS:
+--variable BROWSER_WIDTH:1920
+
+# General
+--variable COUNTRY:IT
+
+# Urls
+--variable MY_ACCOUNT_URL:https://google.it
+--variable LOGIN_URL:https://google.it

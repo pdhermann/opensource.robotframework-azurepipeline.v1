@@ -1,0 +1,10 @@
+--reports all
+--ext-rules robocop_rules.py
+--exclude wrong-case-in-keyword-name
+--configure too-many-calls-in-test-case:max_calls:30
+--configure too-many-calls-in-keyword:max_calls:30
+--configure too-long-test-case:max_len:50
+--configure too-many-arguments:max_args:10
+--configure line-too-long:line_length:200
+--configure too-long-keyword:max_len:80
+--configure file-too-long:max_lines:1000

@@ -1,0 +1,13 @@
+{
+	"testUser1ChromiumDesktopDE": {
+		"username": "fancy-user",
+		"password": "very$ecretP4assword!"
+	},
+	"stageInfo": {
+		"stage": "dev"
+	},
+	"testEmailDE": {
+		"username": "another-fancy-user",
+		"password": "another-very$ecretP4assword!"
+	}
+}

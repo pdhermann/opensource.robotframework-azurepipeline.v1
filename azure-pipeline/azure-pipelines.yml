@@ -1,0 +1,169 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+  branches:
+    include:
+      - "*"
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: DEBUGMODE
+    default: false
+    type: boolean
+
+jobs:
+  - job: printDebugInformations
+    condition: ${{ parameters.DEBUGMODE }}
+    steps:
+      - script: echo $(Build.SourceBranch)
+        displayName: Print Branchname
+        failOnStderr: false
+      - pwsh: $PSVersionTable
+        displayName: Print Powershell Version
+        failOnStderr: false
+
+  - job: GetAllRobots
+    displayName: "Get all robots"
+    steps:
+      - task: PowerShell@2
+        name: getAllRobots
+        displayName: "Get all robots"
+        inputs:
+          filePath: "$(Build.SourcesDirectory)/azure-pipeline/az-get-all-robots.ps1"
+          targetType: "filePath"
+          showWarnings: true
+          failOnStderr: true
+        env:
+          DEBUGMODE: ${{ parameters.DEBUGMODE }}
+
+  - job: RunRobots
+    timeoutInMinutes: 0
+    dependsOn: getAllRobots
+    condition: and(succeeded(),  eq('${{ parameters.runPipelineTests }}', 'true'))
+    displayName: "Run the robots in Pipeline"
+    strategy:
+      matrix: $[ dependencies.GetAllRobots.outputs['getAllRobots.ALL_ROBOTS'] ]
+      maxParallel: 2
+    variables:
+      ALL_ROBOTS: $[ dependencies.GetAllRobots.outputs['getAllRobots.ALL_ROBOTS'] ]
+      ROBOCORP_ROBOT_ID: 0
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+          addToPath: true
+        displayName: "Use Python 3.8"
+        condition: succeeded()
+
+      - pwsh: |
+          Write-Host "Agent Job-Name: $(Agent.JobName)"
+          Write-Host "System Job-Name: $(System.JobName)"
+          Write-Host "Robot: $env:ROBOT"
+          Write-Host "${{ convertToJson(variables) }}"
+        failOnStderr: false
+        displayName: Print Variables
+        condition: ${{ parameters.DEBUGMODE }}
+      - script: declare -p
+        displayName: Print Environment Variables
+        failOnStderr: false
+        condition: ${{ parameters.DEBUGMODE }}
+
+      - script: |
+          python -m pip install --upgrade pip
+        displayName: "Install dependencies"
+        condition: succeeded()
+
+      - script: |
+          pip install -r requirements.txt --ignore-installed
+        displayName: "Install pip requirements"
+        condition: succeeded()
+
+      - script: |
+          npm install chromedriver edgedriver geckodriver playwright
+        displayName: "Install browser test tools"
+        condition: succeeded()
+
+      - script: |
+          npx playwright install-deps
+        displayName: "Install playwright deps"
+        condition: succeeded()
+
+      - script: |
+          rfbrowser clean-node
+          rfbrowser init
+        displayName: "Robot Framework BrowserLib initialisation"
+        condition: succeeded()
+
+      - task: DownloadSecureFile@1
+        name: keyVaultFile
+        displayName: "Download Key-Vault-File"
+        condition: succeeded()
+        inputs:
+          secureFile: "robot.json"
+
+      - script: |
+          echo Set $(keyVaultFile.secureFilePath) access rights...
+          sudo chown root:root $(keyVaultFile.secureFilePath)
+          sudo chmod a+r $(keyVaultFile.secureFilePath)
+          echo "##vso[task.setvariable variable=RPA_SECRET_FILE]$(keyVaultFile.secureFilePath)"
+        displayName: "Set Key-Vault access"
+        condition: succeeded()
+
+      - bash: |
+          mkdir -p "$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR"
+          sudo chown root:root "$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR"
+          sudo chmod a+r "$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR"
+          echo "robocop --output \"$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR/robocop.log\" --configure return_status:quality_gate:E=0:W=100:I=-1 \"src/$ROBOT_DIR\""
+          robocop --output "$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR/robocop.log" --configure return_status:quality_gate:E=0:W=100:I=-1 "src/$ROBOT_DIR"
+        displayName: "Run Linter"
+        condition: succeeded()
+        failOnStderr: true
+        env:
+          ROBOT_DIR: $(ROBOT)
+
+      - bash: |
+          echo "##vso[task.setvariable variable=pipelineRobotRun]Yes"
+          i=0
+          argfiles=""
+          for filename in $(ls -1 "src/$ROBOT_DIR/configs/")
+          do
+            if [ "${filename:0:1}" = _ ]
+              then
+                echo "$filename starts with _ and is skipped."
+              else
+                ((i++))
+                argfiles+="--argumentfile${i} src/$ROBOT_DIR/configs/${filename} "
+            fi
+          done;
+          if [ "${argfiles}" = "" ]
+            then
+              echo "$ROBOT_DIR: Nothing to do!"
+              echo "##vso[task.setvariable variable=pipelineRobotRun]No"
+            else
+              echo "pabot --pabotlib --processes 2 ${argfiles}--report NONE --outputdir \"$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR\" --logtitle \"Example $ROBOT_DIR log\" -x xunitreport.xml --runemptysuite \"src/$ROBOT_DIR/tests\""
+              pabot --pabotlib --processes 2 ${argfiles}--report NONE --outputdir "$(Build.ArtifactStagingDirectory)/output/$ROBOT_DIR" --logtitle "Example $ROBOT_DIR log" -x xunitreport.xml --runemptysuite "src/$ROBOT_DIR/tests"
+          fi
+        displayName: "Run all tests"
+        condition: succeeded()
+        env:
+          ROBOT_DIR: $(ROBOT)
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: xunitreport.xml
+          searchFolder: "$(Build.ArtifactStagingDirectory)/output/$(ROBOT)"
+        condition: and(succeededOrFailed(), eq(variables.pipelineRobotRun, 'Yes'))
+        displayName: "Publish Test Report"
+
+      - task: PublishPipelineArtifact@1
+        condition: and(succeededOrFailed(), eq(variables.pipelineRobotRun, 'Yes'))
+        displayName: "Publish Robot Framework Results"
+        inputs:
+          targetPath: "$(Build.ArtifactStagingDirectory)/output/$(ROBOT)"
+          artifact: "$(ROBOT)"
+          publishLocation: "pipeline"
